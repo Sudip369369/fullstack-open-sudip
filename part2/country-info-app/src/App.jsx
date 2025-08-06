@@ -23,7 +23,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>Country Finder</h1>
+      <h1>Find Contries</h1>
       <input value={filter} onChange={handleFilterChange} placeholder="Search for a country..." />
       
       {selectedCountry
