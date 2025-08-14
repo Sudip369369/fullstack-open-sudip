@@ -1,6 +1,7 @@
 const express = require('express')
  const morgan = require('morgan')
 const cors = require('cors')
+const path = require('path')
 
 
 
@@ -9,6 +10,7 @@ const cors = require('cors')
  const server = express(); 
  server.use(express.json())
 
+server.use(express.static('dist'));
 // using cors middleWare. 
 server.use (cors())
 
@@ -92,7 +94,7 @@ server.delete('/api/persons/:id',(request,response)=>
  const id = request.params.id
  const person = persons.find(person => person.id ===id)
  if(!person){
-    response.send(404).end
+    response.status(404).end()
  }
   persons = persons.filter(person=> person.id !== id)
   response.status(202).end() // no content. 
@@ -123,10 +125,10 @@ server.post('/api/persons',(request,response)=>{
 })
 
 
+server.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
-
-
- const PORT = 3001
- server.listen(PORT,()=>{
-    console.log("Server runnion on",PORT);
- })
+server.listen(process.env.PORT || 3001, () => {
+  console.log(`Server running on port ${process.env.PORT || 3001}`);
+});
