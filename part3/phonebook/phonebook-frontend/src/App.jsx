@@ -9,89 +9,73 @@ function App() {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
-  const [filterperson, setFilterPerson] = useState('');
+  const [filterPerson, setFilterPerson] = useState('');
 
-  
+  // Normalize _id to id when fetching data
   useEffect(() => {
     phonebookService
       .getAll()
       .then(res => {
-        setPersons(res.data);
+        const normalized = res.data.map(p => ({ ...p, id: p.id || p._id }));
+        setPersons(normalized);
       })
       .catch(err => {
         console.error('Failed to load contacts:', err);
       });
   }, []);
 
-  
-  const handleNameChange = (e) => setNewName(e.target.value.trim());
-  const handleNumberChange = (e) => setNewNumber(e.target.value);
-  const handleFilterChange = (e) => setFilterPerson(e.target.value);
+  // Input handlers
+  const handleNameChange = e => setNewName(e.target.value.trim());
+  const handleNumberChange = e => setNewNumber(e.target.value);
+  const handleFilterChange = e => setFilterPerson(e.target.value);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-  const existingPerson = persons.find(p => p.name === newName);
+  // Add or update person
+  const handleSubmit = e => {
+    e.preventDefault();
+    const existingPerson = persons.find(p => p.name === newName);
 
-  if (existingPerson) {
-    const confirmUpdate = window.confirm(
-      `${newName} is already added to phonebook, replace the old number with a new one?`
-    );
-
-    if (confirmUpdate) {
-      const updatedPerson = {
-        ...existingPerson,
-        number: newNumber,
-      };
-
-      phonebookService
-        .update(existingPerson.id, updatedPerson)
-        .then(response => {
-          setPersons(persons.map(p =>
-            p.id !== existingPerson.id ? p : response.data
-          ));
-          setNewName('');
-          setNewNumber('');
-        })
-        .catch(error => {
-          alert(`Failed to update number for ${newName}. It may have been removed from server.`,error);
-        });
+    if (existingPerson) {
+      if (window.confirm(`${newName} is already in phonebook. Replace the old number?`)) {
+        const updatedPerson = { ...existingPerson, number: newNumber };
+        phonebookService
+          .update(existingPerson.id, updatedPerson)
+          .then(res => {
+            const normalized = { ...res.data, id: res.data.id || res.data._id };
+            setPersons(persons.map(p => (p.id !== existingPerson.id ? p : normalized)));
+            setNewName('');
+            setNewNumber('');
+          })
+          .catch(err => {
+            alert(`Failed to update ${newName}. It may have been removed.`);
+            console.error(err);
+          });
+      }
+      return;
     }
 
-    return;
-  }
-
-    const newPerson = {
-      name: newName,
-      number: newNumber
-    };
-
+    // Add new person
+    const newPerson = { name: newName, number: newNumber };
     phonebookService
       .postAll(newPerson)
       .then(res => {
-        setPersons([...persons, res.data]);
+        const normalized = { ...res.data, id: res.data.id || res.data._id };
+        setPersons([...persons, normalized]);
         setNewName('');
         setNewNumber('');
       })
-      .catch(err => {
-        console.error('Failed to add contact:', err);
-      });
+      .catch(error =>console.log(error.response.data.error));
   };
 
-
-
-  
-
-
-  const handleDelete = (id) => {
+  // Delete person
+  const handleDelete = id => {
+    console.log("Deleting ID:", id);
     const person = persons.find(p => p.id === id);
     if (!person) return;
 
     if (window.confirm(`Delete ${person.name}?`)) {
       phonebookService
-        .deleteNum(id)
-        .then(() => {
-          setPersons(persons.filter(p => p.id !== id));
-        })
+        .deleteNum(person.id)
+        .then(() => setPersons(persons.filter(p => p.id !== person.id)))
         .catch(err => {
           alert(`Failed to delete ${person.name}. Maybe they were already removed.`);
           console.error(err);
@@ -101,14 +85,14 @@ function App() {
 
   // Filtered list
   const filteredPersons = persons.filter(p =>
-    (p.name ?? '').toLowerCase().includes((filterperson ?? '').toLowerCase())
+    (p.name ?? '').toLowerCase().includes((filterPerson ?? '').toLowerCase())
   );
 
   return (
     <div>
       <h2>Phonebook</h2>
 
-      <Filter filter={filterperson} handleFilterChange={handleFilterChange} />
+      <Filter filter={filterPerson} handleFilterChange={handleFilterChange} />
 
       <h3>Add a new</h3>
       <PersonForm

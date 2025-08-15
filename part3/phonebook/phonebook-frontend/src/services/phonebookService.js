@@ -14,13 +14,12 @@ const postAll = (newObj) => {
     return axios.post(baseUrl, newObj);
 };
 
-
 const deleteNum = (id) => {
-    return axios.delete(`${baseUrl}${id}`);
+  return axios.delete(`${baseUrl}/${id}`);
 };
 
 const update = (id, updatedObj) => {
-    return axios.put(`${baseUrl}${id}`, updatedObj);
+    return axios.put(`${baseUrl}/${id}`, updatedObj);
 };
 
 export default {
