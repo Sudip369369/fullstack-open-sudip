@@ -138,7 +138,7 @@ app.get('*', (req, res) => {
 });
 
 // Error handling middleware
-app.use((error, req, res, next) => {
+app.use((error, req, res, ) => {
   console.error('Error details:', error.message);
 
   if (error.name === 'CastError') {
