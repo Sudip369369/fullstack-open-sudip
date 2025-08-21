@@ -1,0 +1,31 @@
+{
+  "name": "blog-app",
+  "version": "1.0.0",
+  "description": "Backend of blog-app from fullstack open",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "node",
+    "mongoose"
+  ],
+  "author": "Sudip G.C.",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "mongoose": "^8.17.2",
+    "supertest": "^7.1.4"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
+  }
+}
